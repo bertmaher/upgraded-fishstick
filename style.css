@@ -244,6 +244,35 @@ header h1 {
 }
 
 /* ───────────────────────────────────────────────
+   Pane actions group
+──────────────────────────────────────────────── */
+.pane-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ───────────────────────────────────────────────
+   Clear button
+──────────────────────────────────────────────── */
+.btn-clear {
+  padding: 7px 14px;
+  background: none;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: .875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color .15s, color .15s;
+}
+
+.btn-clear:hover {
+  border-color: #dc2626;
+  color: #dc2626;
+}
+
+/* ───────────────────────────────────────────────
    Clarify button
 ──────────────────────────────────────────────── */
 .btn-clarify {

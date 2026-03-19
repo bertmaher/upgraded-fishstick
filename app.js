@@ -18,6 +18,14 @@ const keyInput   = document.getElementById("keyInput");
 
 const LS_KEY = "anthropic_api_key";
 
+const DEFAULT_TEXT = `The annual labour of every nation is the fund which originally supplies it with all the necessaries and conveniencies of life which it annually consumes, and which consist always either in the immediate produce of that labour, or in what is purchased with that produce from other nations.
+
+According, therefore, as this produce, or what is purchased with it, bears a greater or smaller proportion to the number of those who are to consume it, the nation will be better or worse supplied with all the necessaries and conveniencies for which it has occasion.
+
+But this proportion must in every nation be regulated by two different circumstances: first, by the skill, dexterity, and judgment with which its labour is generally applied; and, secondly, by the proportion between the number of those who are employed in useful labour, and that of those who are not so employed. Whatever be the soil, climate, or extent of territory of any particular nation, the abundance or scantiness of its annual supply must, in that particular situation, depend upon those two circumstances.`;
+
+textInput.value = DEFAULT_TEXT;
+
 /* ── API key management ─────────────────────── */
 function getKey() {
   return localStorage.getItem(LS_KEY) || "";
@@ -72,6 +80,12 @@ window.addEventListener("load", () => {
     keyInput.focus();
   }
 });
+
+/* ── Clear text ────────────────────────────────── */
+function clearText() {
+  textInput.value = "";
+  textInput.focus();
+}
 
 /* ── Tab / pane switching (mobile) ─────────────── */
 function showPane(name) {

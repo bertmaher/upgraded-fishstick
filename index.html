@@ -36,9 +36,12 @@
     <section class="pane pane-text active" id="paneText">
       <div class="pane-header">
         <span class="pane-title">Your Text</span>
-        <button class="btn-clarify" id="clarifyBtn" onclick="clarify()">
-          ✨ Clarify with AI
-        </button>
+        <div class="pane-actions">
+          <button class="btn-clear" id="clearBtn" onclick="clearText()">Clear</button>
+          <button class="btn-clarify" id="clarifyBtn" onclick="clarify()">
+            ✨ Clarify with AI
+          </button>
+        </div>
       </div>
       <textarea
         id="textInput"

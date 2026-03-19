@@ -9,12 +9,27 @@
 <body>
   <header>
     <h1>AI Text Reader</h1>
-    <!-- Mobile tab bar -->
-    <div class="tab-bar" id="tabBar">
-      <button class="tab active" id="tabText" onclick="showPane('text')">Text</button>
-      <button class="tab" id="tabAI" onclick="showPane('ai')">AI View</button>
+    <div class="header-right">
+      <div class="tab-bar" id="tabBar">
+        <button class="tab active" id="tabText" onclick="showPane('text')">Text</button>
+        <button class="tab" id="tabAI" onclick="showPane('ai')">AI View</button>
+      </div>
+      <button class="btn-key" id="keyBtn" onclick="toggleKeyPanel()" title="API Key settings">🔑</button>
     </div>
   </header>
+
+  <!-- API Key panel (slides down from header) -->
+  <div class="key-panel hidden" id="keyPanel">
+    <div class="key-panel-inner">
+      <label for="keyInput">Anthropic API Key</label>
+      <div class="key-row">
+        <input type="password" id="keyInput" placeholder="sk-ant-…" autocomplete="off" />
+        <button class="btn-save-key" onclick="saveKey()">Save</button>
+        <button class="btn-clear-key" onclick="clearKey()">Clear</button>
+      </div>
+      <p class="key-hint">Stored only in this browser (localStorage). Sent directly to Anthropic — never touches any server.</p>
+    </div>
+  </div>
 
   <main class="app" id="app">
     <!-- Left pane: reader input -->

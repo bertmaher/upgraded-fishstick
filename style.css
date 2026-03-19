@@ -48,6 +48,126 @@ header h1 {
   color: var(--accent);
 }
 
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ───────────────────────────────────────────────
+   API Key button
+──────────────────────────────────────────────── */
+.btn-key {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 5px 10px;
+  font-size: .9rem;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: border-color .15s, color .15s;
+  line-height: 1;
+}
+
+.btn-key:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.btn-key.has-key {
+  border-color: #16a34a;
+  color: #16a34a;
+}
+
+/* ───────────────────────────────────────────────
+   API Key panel
+──────────────────────────────────────────────── */
+.key-panel {
+  position: fixed;
+  top: var(--header-h);
+  right: 0;
+  left: 0;
+  z-index: 9;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 4px 16px rgba(0,0,0,.1);
+}
+
+.key-panel-inner {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.key-panel-inner label {
+  font-size: .8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--text-muted);
+}
+
+.key-row {
+  display: flex;
+  gap: 8px;
+}
+
+.key-row input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: .9rem;
+  font-family: monospace;
+  outline: none;
+  transition: border-color .15s;
+}
+
+.key-row input:focus {
+  border-color: var(--accent);
+}
+
+.btn-save-key {
+  padding: 8px 16px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: .875rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background .15s;
+}
+
+.btn-save-key:hover { background: var(--accent-dark); }
+
+.btn-clear-key {
+  padding: 8px 16px;
+  background: none;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: .875rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color .15s, color .15s;
+}
+
+.btn-clear-key:hover {
+  border-color: #dc2626;
+  color: #dc2626;
+}
+
+.key-hint {
+  font-size: .78rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
 /* ───────────────────────────────────────────────
    Tab bar (mobile only)
 ──────────────────────────────────────────────── */
@@ -263,16 +383,11 @@ textarea::placeholder { color: var(--text-muted); }
 
   .pane.active { transform: translateX(0); }
 
-  /* During swipe: show both panes side by side */
-  .app.swiping .pane-text { transform: translateX(0); }
-  .app.swiping .pane-ai   { transform: translateX(100%); }
-
   /* Loading overlay in mobile: center on active pane */
   .loading {
     left: 0;
   }
 
-  /* Mobile: Clarify button placement - it shows on the AI tab too */
   .pane-text .btn-clarify {
     font-size: .8rem;
     padding: 6px 12px;

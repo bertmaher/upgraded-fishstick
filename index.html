@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Text Reader</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>AI Text Reader</h1>
+    <div class="header-right">
+      <div class="tab-bar" id="tabBar">
+        <button class="tab active" id="tabText" onclick="showPane('text')">Text</button>
+        <button class="tab" id="tabAI" onclick="showPane('ai')">AI View</button>
+      </div>
+      <button class="btn-key" id="keyBtn" onclick="toggleKeyPanel()" title="API Key settings">🔑</button>
+    </div>
+  </header>
+
+  <!-- API Key panel (slides down from header) -->
+  <div class="key-panel hidden" id="keyPanel">
+    <div class="key-panel-inner">
+      <label for="keyInput">Anthropic API Key</label>
+      <div class="key-row">
+        <input type="password" id="keyInput" placeholder="sk-ant-…" autocomplete="off" />
+        <button class="btn-save-key" onclick="saveKey()">Save</button>
+        <button class="btn-clear-key" onclick="clearKey()">Clear</button>
+      </div>
+      <p class="key-hint">Stored only in this browser (localStorage). Sent directly to Anthropic — never touches any server.</p>
+    </div>
+  </div>
+
+  <main class="app" id="app">
+    <!-- Left pane: reader input -->
+    <section class="pane pane-text active" id="paneText">
+      <div class="pane-header">
+        <span class="pane-title">Your Text</span>
+        <button class="btn-clarify" id="clarifyBtn" onclick="clarify()">
+          ✨ Clarify with AI
+        </button>
+      </div>
+      <textarea
+        id="textInput"
+        placeholder="Paste your complex text here…"
+        spellcheck="true"
+        aria-label="Text to clarify"
+      ></textarea>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Right pane: AI clarification -->
+    <section class="pane pane-ai" id="paneAI">
+      <div class="pane-header">
+        <span class="pane-title">AI Clarification</span>
+        <span class="cache-badge hidden" id="cacheBadge">⚡ Cached</span>
+      </div>
+      <div class="ai-content" id="aiContent">
+        <div class="placeholder">
+          <p>Paste some text on the left and click <strong>Clarify with AI</strong> to get a simplified explanation.</p>
+        </div>
+      </div>
+      <div class="loading hidden" id="loading">
+        <div class="spinner"></div>
+        <p>Clarifying…</p>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

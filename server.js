@@ -12,7 +12,7 @@ const client = new Anthropic();
 const clarificationCache = new Map();
 
 app.use(express.json({ limit: "2mb" }));
-app.use(express.static(join(__dirname, "public")));
+app.use(express.static(__dirname));
 
 app.post("/api/clarify", async (req, res) => {
   const { text } = req.body;

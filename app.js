@@ -102,32 +102,6 @@ function showPane(name) {
   }
 }
 
-/* ── Swipe detection (mobile) ──────────────────── */
-(function initSwipe() {
-  let startX = null;
-  let startY = null;
-  const THRESHOLD = 50;
-  const MAX_Y_RATIO = 1.5;
-
-  app.addEventListener("touchstart", (e) => {
-    startX = e.touches[0].clientX;
-    startY = e.touches[0].clientY;
-  }, { passive: true });
-
-  app.addEventListener("touchend", (e) => {
-    if (startX === null) return;
-    const dx = e.changedTouches[0].clientX - startX;
-    const dy = e.changedTouches[0].clientY - startY;
-    startX = null;
-    startY = null;
-
-    if (Math.abs(dx) < THRESHOLD) return;
-    if (Math.abs(dy) > Math.abs(dx) * MAX_Y_RATIO) return;
-
-    if (dx < 0) showPane("ai");
-    else showPane("text");
-  }, { passive: true });
-})();
 
 /* ── Client-side cache ──────────────────────────── */
 const clarificationCache = new Map();

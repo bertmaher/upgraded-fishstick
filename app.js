@@ -18,6 +18,11 @@ const keyInput   = document.getElementById("keyInput");
 
 const LS_KEY = "anthropic_api_key";
 
+// If window.PROXY_URL is set (e.g. in a config.js loaded before this script),
+// requests are sent to the proxy instead of directly to Anthropic.
+// The proxy holds the API key server-side — users don't need to supply one.
+const PROXY_URL = (typeof window !== "undefined" && window.PROXY_URL) || null;
+
 const DEFAULT_TEXT = `The annual labour of every nation is the fund which originally supplies it with all the necessaries and conveniencies of life which it annually consumes, and which consist always either in the immediate produce of that labour, or in what is purchased with that produce from other nations.
 
 According, therefore, as this produce, or what is purchased with it, bears a greater or smaller proportion to the number of those who are to consume it, the nation will be better or worse supplied with all the necessaries and conveniencies for which it has occasion.
@@ -74,12 +79,17 @@ keyInput.addEventListener("keydown", (e) => {
   if (e.key === "Escape") keyPanel.classList.add("hidden");
 });
 
-// On load: show key panel if no key set
+// On load: hide key UI entirely if a proxy is configured; otherwise show key panel if no key set
 window.addEventListener("load", () => {
-  updateKeyBtnState();
-  if (!getKey()) {
-    keyPanel.classList.remove("hidden");
-    keyInput.focus();
+  if (PROXY_URL) {
+    keyBtn.classList.add("hidden");
+    keyPanel.classList.add("hidden");
+  } else {
+    updateKeyBtnState();
+    if (!getKey()) {
+      keyPanel.classList.remove("hidden");
+      keyInput.focus();
+    }
   }
 });
 
@@ -147,8 +157,8 @@ async function clarify() {
     return;
   }
 
-  const apiKey = getKey();
-  if (!apiKey) {
+  const apiKey = PROXY_URL ? null : getKey();
+  if (!PROXY_URL && !apiKey) {
     keyPanel.classList.remove("hidden");
     keyInput.focus();
     return;
@@ -166,14 +176,19 @@ async function clarify() {
       return;
     }
 
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
+    const endpoint = PROXY_URL ? `${PROXY_URL}/v1/messages` : "https://api.anthropic.com/v1/messages";
+    const headers = {
+      "content-type": "application/json",
+      ...(apiKey && {
         "x-api-key": apiKey,
         "anthropic-version": "2023-06-01",
-        "content-type": "application/json",
         "anthropic-dangerous-direct-browser-access": "true",
-      },
+      }),
+    };
+
+    const res = await fetch(endpoint, {
+      method: "POST",
+      headers,
       body: JSON.stringify({
         model: "claude-haiku-4-5-20251001",
         max_tokens: 4096,

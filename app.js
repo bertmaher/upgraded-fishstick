@@ -15,7 +15,7 @@ const app        = document.getElementById("app");
 
 /* ── Worker proxy URL ─────────────────────────── */
 // Replace with your deployed Cloudflare Worker URL
-const API_URL = "https://text-reader-ai-proxy.<your-subdomain>.workers.dev";
+const API_URL = "https://small-recipe-2ce5.bertmaher.workers.dev";
 
 const DEFAULT_TEXT = `The annual labour of every nation is the fund which originally supplies it with all the necessaries and conveniencies of life which it annually consumes, and which consist always either in the immediate produce of that labour, or in what is purchased with that produce from other nations.
 

@@ -12,11 +12,10 @@ const paneAI     = document.getElementById("paneAI");
 const tabText    = document.getElementById("tabText");
 const tabAI      = document.getElementById("tabAI");
 const app        = document.getElementById("app");
-const keyBtn     = document.getElementById("keyBtn");
-const keyPanel   = document.getElementById("keyPanel");
-const keyInput   = document.getElementById("keyInput");
 
-const LS_KEY = "anthropic_api_key";
+/* ── Worker proxy URL ─────────────────────────── */
+// Replace with your deployed Cloudflare Worker URL
+const API_URL = "https://text-reader-ai-proxy.<your-subdomain>.workers.dev";
 
 const DEFAULT_TEXT = `The annual labour of every nation is the fund which originally supplies it with all the necessaries and conveniencies of life which it annually consumes, and which consist always either in the immediate produce of that labour, or in what is purchased with that produce from other nations.
 
@@ -27,61 +26,6 @@ But this proportion must in every nation be regulated by two different circumsta
 The abundance or scantiness of this supply, too, seems to depend more upon the former of those two circumstances than upon the latter. Among the savage nations of hunters and fishers, every individual who is able to work is more or less employed in useful labour, and endeavours to provide, as well as he can, the necessaries and conveniencies of life, for himself, and such of his family or tribe as are either too old, or too young, or too infirm, to go a-hunting and fishing. Such nations, however, are so miserably poor, that, from mere want, they are frequently reduced, or at least think themselves reduced, to the necessity sometimes of directly destroying, and sometimes of abandoning their infants, their old people, and those afflicted with lingering diseases, to perish with hunger, or to be devoured by wild beasts. Among civilized and thriving nations, on the contrary, though a great number of people do not labour at all, many of whom consume the produce of ten times, frequently of a hundred times, more labour than the greater part of those who work; yet the produce of the whole labour of the society is so great, that all are often abundantly supplied; and a workman, even of the lowest and poorest order, if he is frugal and industrious, may enjoy a greater share of the necessaries and conveniencies of life than it is possible for any savage to acquire.`;
 
 textInput.value = DEFAULT_TEXT;
-
-/* ── API key management ─────────────────────── */
-function getKey() {
-  return localStorage.getItem(LS_KEY) || "";
-}
-
-function updateKeyBtnState() {
-  if (getKey()) {
-    keyBtn.classList.add("has-key");
-    keyBtn.title = "API key saved — click to change";
-  } else {
-    keyBtn.classList.remove("has-key");
-    keyBtn.title = "Set your Anthropic API key";
-  }
-}
-
-function toggleKeyPanel() {
-  const isHidden = keyPanel.classList.contains("hidden");
-  keyPanel.classList.toggle("hidden", !isHidden);
-  if (isHidden) {
-    keyInput.value = getKey();
-    keyInput.focus();
-  }
-}
-
-function saveKey() {
-  const val = keyInput.value.trim();
-  if (val) {
-    localStorage.setItem(LS_KEY, val);
-  }
-  keyPanel.classList.add("hidden");
-  updateKeyBtnState();
-}
-
-function clearKey() {
-  localStorage.removeItem(LS_KEY);
-  keyInput.value = "";
-  keyPanel.classList.add("hidden");
-  updateKeyBtnState();
-}
-
-// Close panel when pressing Enter in key input
-keyInput.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") saveKey();
-  if (e.key === "Escape") keyPanel.classList.add("hidden");
-});
-
-// On load: show key panel if no key set
-window.addEventListener("load", () => {
-  updateKeyBtnState();
-  if (!getKey()) {
-    keyPanel.classList.remove("hidden");
-    keyInput.focus();
-  }
-});
 
 /* ── Clear text ────────────────────────────────── */
 function clearText() {
@@ -147,13 +91,6 @@ async function clarify() {
     return;
   }
 
-  const apiKey = getKey();
-  if (!apiKey) {
-    keyPanel.classList.remove("hidden");
-    keyInput.focus();
-    return;
-  }
-
   const isMobile = window.innerWidth <= 700;
   if (isMobile) showPane("ai");
 
@@ -166,13 +103,10 @@ async function clarify() {
       return;
     }
 
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
+    const res = await fetch(API_URL, {
       method: "POST",
       headers: {
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
         "content-type": "application/json",
-        "anthropic-dangerous-direct-browser-access": "true",
       },
       body: JSON.stringify({
         model: "claude-haiku-4-5-20251001",
@@ -226,7 +160,7 @@ function renderClarification(text, cached) {
 }
 
 function renderError(msg) {
-  aiContent.innerHTML = `<div class="error-msg">⚠️ ${escapeHtml(msg)}</div>`;
+  aiContent.innerHTML = `<div class="error-msg">\u26a0\ufe0f ${escapeHtml(msg)}</div>`;
 }
 
 function escapeHtml(str) {

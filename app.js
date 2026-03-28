@@ -103,6 +103,9 @@ async function clarify() {
       return;
     }
 
+    const wordCount = text.trim().split(/\s+/).length;
+    const targetWords = Math.max(10, Math.round(wordCount / 10));
+
     const res = await fetch(API_URL, {
       method: "POST",
       headers: {
@@ -111,7 +114,7 @@ async function clarify() {
       body: JSON.stringify({
         model: "claude-sonnet-4-6",
         max_tokens: 4096,
-        system: "You are an expert editor specializing in condensing texts in the style of Reader's Digest Condensed Books. When given a passage, produce a shorter version that preserves the author's original voice, style, and tone as faithfully as possible — cut words, sentences, and redundancies, but do not paraphrase or simplify the language. The goal is a tighter version of the same text, not a summary or a rewrite.\n\nThe goal is to substantially reduce the length of the input text.  We want to make the text about 10x shorter!  That means for every ten sentences in the original source, you should target one sentence in the output!\n\nMaintain logical paragraph breaks. Preserve the original paragraph structure where possible, or create new breaks at natural thought divisions. Each paragraph should develop a single idea, making the text scannable and readable rather than a dense block of prose.\n\nDo not add a preamble—go straight into the condensed version.\n\nHere is the text to condense:",
+        system: `You are an expert editor specializing in condensing texts in the style of Reader's Digest Condensed Books. When given a passage, produce a shorter version that preserves the author's original voice, style, and tone as faithfully as possible — cut words, sentences, and redundancies, but do not paraphrase or simplify the language. The goal is a tighter version of the same text, not a summary or a rewrite.\n\nThe input text is ${wordCount} words long. Your condensed version MUST be approximately ${targetWords} words — that is roughly 1/10 the length. Count your words as you write and stop when you reach the target.\n\nMaintain logical paragraph breaks. Preserve the original paragraph structure where possible, or create new breaks at natural thought divisions. Each paragraph should develop a single idea, making the text scannable and readable rather than a dense block of prose.\n\nDo not add a preamble—go straight into the condensed version.\n\nHere is the text to condense:`,
         messages: [
           { role: "user", content: text },
         ],

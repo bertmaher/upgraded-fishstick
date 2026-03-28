@@ -2,16 +2,20 @@
    AI Text Reader — frontend logic (static/serverless)
 ───────────────────────────────────────────────── */
 
-const textInput  = document.getElementById("textInput");
-const aiContent  = document.getElementById("aiContent");
-const loading    = document.getElementById("loading");
-const clarifyBtn = document.getElementById("clarifyBtn");
-const cacheBadge = document.getElementById("cacheBadge");
-const paneText   = document.getElementById("paneText");
-const paneAI     = document.getElementById("paneAI");
-const tabText    = document.getElementById("tabText");
-const tabAI      = document.getElementById("tabAI");
-const app        = document.getElementById("app");
+const textInput       = document.getElementById("textInput");
+const aiContent       = document.getElementById("aiContent");
+const loading         = document.getElementById("loading");
+const loadingText     = document.getElementById("loadingText");
+const clarifyBtn      = document.getElementById("clarifyBtn");
+const cacheBadge      = document.getElementById("cacheBadge");
+const paneText        = document.getElementById("paneText");
+const paneAI          = document.getElementById("paneAI");
+const tabText         = document.getElementById("tabText");
+const tabCondensed    = document.getElementById("tabCondensed");
+const tabSimplified   = document.getElementById("tabSimplified");
+const modeCondensedBtn = document.getElementById("modeCondensed");
+const modeSimplifiedBtn = document.getElementById("modeSimplified");
+const app             = document.getElementById("app");
 
 /* ── Worker proxy URL ─────────────────────────── */
 // Replace with your deployed Cloudflare Worker URL
@@ -27,24 +31,53 @@ The abundance or scantiness of this supply, too, seems to depend more upon the f
 
 textInput.value = DEFAULT_TEXT;
 
+/* ── Mode state ─────────────────────────────────── */
+let currentMode = "condensed"; // 'condensed' | 'simplified'
+const condensedCache = new Map();
+const simplifiedCache = new Map();
+
 /* ── Clear text ────────────────────────────────── */
 function clearText() {
   textInput.value = "";
   textInput.focus();
 }
 
+/* ── Mode switching ──────────────────────────────── */
+function setMode(mode) {
+  currentMode = mode;
+  modeCondensedBtn.classList.toggle("active", mode === "condensed");
+  modeSimplifiedBtn.classList.toggle("active", mode === "simplified");
+  refreshAIPane();
+}
+
+async function refreshAIPane() {
+  const text = textInput.value.trim();
+  cacheBadge.classList.add("hidden");
+
+  if (text) {
+    const cache = currentMode === "condensed" ? condensedCache : simplifiedCache;
+    const cacheKey = await sha256(text);
+    if (cache.has(cacheKey)) {
+      renderAI(cache.get(cacheKey), true);
+      return;
+    }
+  }
+
+  const modeLabel = currentMode === "condensed" ? "condense" : "simplify";
+  aiContent.innerHTML = `<div class="placeholder"><p>Paste some text on the left and click <strong>Process with AI</strong> to ${modeLabel} it.</p></div>`;
+}
+
 /* ── Tab / pane switching (mobile) ─────────────── */
 function showPane(name) {
-  if (name === "text") {
-    paneText.classList.add("active");
-    paneAI.classList.remove("active");
-    tabText.classList.add("active");
-    tabAI.classList.remove("active");
-  } else {
-    paneAI.classList.add("active");
-    paneText.classList.remove("active");
-    tabAI.classList.add("active");
-    tabText.classList.remove("active");
+  const isText = name === "text";
+  paneText.classList.toggle("active", isText);
+  paneAI.classList.toggle("active", !isText);
+  tabText.classList.toggle("active", isText);
+  tabCondensed.classList.toggle("active", name === "condensed");
+  tabSimplified.classList.toggle("active", name === "simplified");
+
+  if (!isText) {
+    setMode(name);
   }
 }
 
@@ -54,6 +87,7 @@ function showPane(name) {
   let startY = null;
   const THRESHOLD = 50;
   const MAX_Y_RATIO = 1.5;
+  const PANES = ["text", "condensed", "simplified"];
 
   app.addEventListener("touchstart", (e) => {
     startX = e.touches[0].clientX;
@@ -70,20 +104,31 @@ function showPane(name) {
     if (Math.abs(dx) < THRESHOLD) return;
     if (Math.abs(dy) > Math.abs(dx) * MAX_Y_RATIO) return;
 
-    if (dx < 0) showPane("ai");
-    else showPane("text");
+    const activePane = paneText.classList.contains("active") ? "text" : currentMode;
+    const idx = PANES.indexOf(activePane);
+
+    if (dx < 0 && idx < PANES.length - 1) showPane(PANES[idx + 1]);
+    else if (dx > 0 && idx > 0) showPane(PANES[idx - 1]);
   }, { passive: true });
 })();
 
 /* ── Client-side cache ──────────────────────────── */
-const clarificationCache = new Map();
-
 async function sha256(str) {
   const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
   return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
 }
 
-/* ── Clarify ────────────────────────────────────── */
+/* ── System prompts ─────────────────────────────── */
+function getCondensedPrompt(wordCount) {
+  const targetWords = Math.max(10, Math.round(wordCount / 10));
+  return `You are an expert editor specializing in condensing texts in the style of Reader's Digest Condensed Books. When given a passage, produce a shorter version that preserves the author's original voice, style, and tone as faithfully as possible — cut words, sentences, and redundancies, but do not paraphrase or simplify the language. The goal is a tighter version of the same text, not a summary or a rewrite.\n\nThe input text is ${wordCount} words long. Your condensed version MUST be approximately ${targetWords} words — that is roughly 1/10 the length. Count your words as you write and stop when you reach the target.\n\nMaintain logical paragraph breaks. Preserve the original paragraph structure where possible, or create new breaks at natural thought divisions. Each paragraph should develop a single idea, making the text scannable and readable rather than a dense block of prose.\n\nDo not add a preamble—go straight into the condensed version.\n\nHere is the text to condense:`;
+}
+
+function getSimplifiedPrompt() {
+  return `You are an expert at making complex texts easy to understand. When given a passage, rewrite it in plain, clear language that anyone can follow. Use simpler vocabulary, shorter sentences, and a straightforward structure — but preserve all the key ideas and information. Do not add a preamble — go straight into the simplified version.`;
+}
+
+/* ── Process with AI ────────────────────────────── */
 async function clarify() {
   const text = textInput.value.trim();
   if (!text) {
@@ -92,19 +137,23 @@ async function clarify() {
   }
 
   const isMobile = window.innerWidth <= 700;
-  if (isMobile) showPane("ai");
+  if (isMobile) showPane(currentMode);
 
   setLoading(true);
 
   try {
+    const cache = currentMode === "condensed" ? condensedCache : simplifiedCache;
     const cacheKey = await sha256(text);
-    if (clarificationCache.has(cacheKey)) {
-      renderClarification(clarificationCache.get(cacheKey), true);
+
+    if (cache.has(cacheKey)) {
+      renderAI(cache.get(cacheKey), true);
       return;
     }
 
     const wordCount = text.trim().split(/\s+/).length;
-    const targetWords = Math.max(10, Math.round(wordCount / 10));
+    const systemPrompt = currentMode === "condensed"
+      ? getCondensedPrompt(wordCount)
+      : getSimplifiedPrompt();
 
     const res = await fetch(API_URL, {
       method: "POST",
@@ -114,7 +163,7 @@ async function clarify() {
       body: JSON.stringify({
         model: "claude-sonnet-4-6",
         max_tokens: 4096,
-        system: `You are an expert editor specializing in condensing texts in the style of Reader's Digest Condensed Books. When given a passage, produce a shorter version that preserves the author's original voice, style, and tone as faithfully as possible — cut words, sentences, and redundancies, but do not paraphrase or simplify the language. The goal is a tighter version of the same text, not a summary or a rewrite.\n\nThe input text is ${wordCount} words long. Your condensed version MUST be approximately ${targetWords} words — that is roughly 1/10 the length. Count your words as you write and stop when you reach the target.\n\nMaintain logical paragraph breaks. Preserve the original paragraph structure where possible, or create new breaks at natural thought divisions. Each paragraph should develop a single idea, making the text scannable and readable rather than a dense block of prose.\n\nDo not add a preamble—go straight into the condensed version.\n\nHere is the text to condense:`,
+        system: systemPrompt,
         messages: [
           { role: "user", content: text },
         ],
@@ -127,13 +176,13 @@ async function clarify() {
       throw new Error(data.error?.message ?? `API error ${res.status}`);
     }
 
-    const clarified = data.content
+    const result = data.content
       .filter((b) => b.type === "text")
       .map((b) => b.text)
       .join("");
 
-    clarificationCache.set(cacheKey, clarified);
-    renderClarification(clarified, false);
+    cache.set(cacheKey, result);
+    renderAI(result, false);
   } catch (err) {
     renderError(err.message);
   } finally {
@@ -145,9 +194,10 @@ function setLoading(on) {
   clarifyBtn.disabled = on;
   loading.classList.toggle("hidden", !on);
   cacheBadge.classList.add("hidden");
+  loadingText.textContent = currentMode === "condensed" ? "Condensing…" : "Simplifying…";
 }
 
-function renderClarification(text, cached) {
+function renderAI(text, cached) {
   const paras = text
     .split(/\n{2,}/)
     .map((p) => p.replace(/\n/g, " ").trim())

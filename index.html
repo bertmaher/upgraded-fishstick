@@ -12,7 +12,8 @@
     <div class="header-right">
       <div class="tab-bar" id="tabBar">
         <button class="tab active" id="tabText" onclick="showPane('text')">Text</button>
-        <button class="tab" id="tabAI" onclick="showPane('ai')">AI View</button>
+        <button class="tab" id="tabCondensed" onclick="showPane('condensed')">Condensed</button>
+        <button class="tab" id="tabSimplified" onclick="showPane('simplified')">Simplified</button>
       </div>
     </div>
   </header>
@@ -25,7 +26,7 @@
         <div class="pane-actions">
           <button class="btn-clear" id="clearBtn" onclick="clearText()">Clear</button>
           <button class="btn-clarify" id="clarifyBtn" onclick="clarify()">
-            ✨ Clarify with AI
+            ✨ Process with AI
           </button>
         </div>
       </div>
@@ -39,20 +40,23 @@
 
     <div class="divider"></div>
 
-    <!-- Right pane: AI clarification -->
+    <!-- Right pane: AI output -->
     <section class="pane pane-ai" id="paneAI">
       <div class="pane-header">
-        <span class="pane-title">AI Clarification</span>
+        <div class="mode-selector">
+          <button class="mode-btn active" id="modeCondensed" onclick="setMode('condensed')">Condensed</button>
+          <button class="mode-btn" id="modeSimplified" onclick="setMode('simplified')">Simplified</button>
+        </div>
         <span class="cache-badge hidden" id="cacheBadge">⚡ Cached</span>
       </div>
       <div class="ai-content" id="aiContent">
         <div class="placeholder">
-          <p>Paste some text on the left and click <strong>Clarify with AI</strong> to get a simplified explanation.</p>
+          <p>Paste some text on the left and click <strong>Process with AI</strong> to condense it.</p>
         </div>
       </div>
       <div class="loading hidden" id="loading">
         <div class="spinner"></div>
-        <p>Clarifying…</p>
+        <p id="loadingText">Condensing…</p>
       </div>
     </section>
   </main>

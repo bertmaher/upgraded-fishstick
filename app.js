@@ -111,9 +111,9 @@ async function clarify() {
       body: JSON.stringify({
         model: "claude-haiku-4-5-20251001",
         max_tokens: 4096,
-        system: "You are an expert at making complex texts easier to understand. When given a passage, rewrite it in clear, accessible language while preserving all the key ideas and nuance. Format your response as a clean, readable explanation. Do not add a preamble—go straight into the clarified version.",
+        system: "You are an expert editor specializing in condensing texts in the style of Reader's Digest Condensed Books. When given a passage, produce a shorter version that preserves the author's original voice, style, and tone as faithfully as possible — cut words, sentences, and redundancies, but do not paraphrase or simplify the language. The goal is a tighter version of the same text, not a summary or a rewrite. Do not add a preamble—go straight into the condensed version.",
         messages: [
-          { role: "user", content: `Please clarify the following text:\n\n${text}` },
+          { role: "user", content: `Please condense the following text:\n\n${text}` },
         ],
       }),
     });

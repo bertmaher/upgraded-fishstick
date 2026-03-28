@@ -2,20 +2,19 @@
    AI Text Reader — frontend logic (static/serverless)
 ───────────────────────────────────────────────── */
 
-const textInput       = document.getElementById("textInput");
-const aiContent       = document.getElementById("aiContent");
-const loading         = document.getElementById("loading");
-const loadingText     = document.getElementById("loadingText");
-const clarifyBtn      = document.getElementById("clarifyBtn");
-const cacheBadge      = document.getElementById("cacheBadge");
-const paneText        = document.getElementById("paneText");
-const paneAI          = document.getElementById("paneAI");
-const tabText         = document.getElementById("tabText");
-const tabCondensed    = document.getElementById("tabCondensed");
-const tabSimplified   = document.getElementById("tabSimplified");
+const textInput        = document.getElementById("textInput");
+const aiContent        = document.getElementById("aiContent");
+const loading          = document.getElementById("loading");
+const loadingText      = document.getElementById("loadingText");
+const cacheBadge       = document.getElementById("cacheBadge");
+const paneText         = document.getElementById("paneText");
+const paneAI           = document.getElementById("paneAI");
+const tabText          = document.getElementById("tabText");
+const tabCondensed     = document.getElementById("tabCondensed");
+const tabSimplified    = document.getElementById("tabSimplified");
 const modeCondensedBtn = document.getElementById("modeCondensed");
 const modeSimplifiedBtn = document.getElementById("modeSimplified");
-const app             = document.getElementById("app");
+const app              = document.getElementById("app");
 
 /* ── Worker proxy URL ─────────────────────────── */
 // Replace with your deployed Cloudflare Worker URL
@@ -54,17 +53,21 @@ async function refreshAIPane() {
   const text = textInput.value.trim();
   cacheBadge.classList.add("hidden");
 
-  if (text) {
-    const cache = currentMode === "condensed" ? condensedCache : simplifiedCache;
-    const cacheKey = await sha256(text);
-    if (cache.has(cacheKey)) {
-      renderAI(cache.get(cacheKey), true);
-      return;
-    }
+  if (!text) {
+    const modeLabel = currentMode === "condensed" ? "Reader's Digest" : "CliffsNotes";
+    aiContent.innerHTML = `<div class="placeholder"><p>Paste some text in the Original tab to get a <strong>${modeLabel}</strong> version.</p></div>`;
+    return;
   }
 
-  const modeLabel = currentMode === "condensed" ? "get a Reader's Digest version" : "get a CliffsNotes version";
-  aiContent.innerHTML = `<div class="placeholder"><p>Paste some text on the left and click <strong>Process with AI</strong> to ${modeLabel}.</p></div>`;
+  const cache = currentMode === "condensed" ? condensedCache : simplifiedCache;
+  const cacheKey = await sha256(text);
+  if (cache.has(cacheKey)) {
+    renderAI(cache.get(cacheKey), true);
+    return;
+  }
+
+  // No cached result — trigger AI processing automatically
+  clarify();
 }
 
 /* ── Tab / pane switching (mobile) ─────────────── */
@@ -130,14 +133,10 @@ function getSimplifiedPrompt() {
 
 /* ── Process with AI ────────────────────────────── */
 async function clarify() {
-  const text = textInput.value.trim();
-  if (!text) {
-    textInput.focus();
-    return;
-  }
+  if (!loading.classList.contains("hidden")) return; // already in flight
 
-  const isMobile = window.innerWidth <= 700;
-  if (isMobile) showPane(currentMode);
+  const text = textInput.value.trim();
+  if (!text) return;
 
   setLoading(true);
 
@@ -191,7 +190,6 @@ async function clarify() {
 }
 
 function setLoading(on) {
-  clarifyBtn.disabled = on;
   loading.classList.toggle("hidden", !on);
   cacheBadge.classList.add("hidden");
   loadingText.textContent = currentMode === "condensed" ? "Digesting…" : "Summarizing…";

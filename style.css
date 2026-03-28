@@ -198,7 +198,7 @@ header h1 {
 }
 
 /* ───────────────────────────────────────────────
-   Mode selector (desktop, inside AI pane header)
+   Mode selector (header, desktop only)
 ──────────────────────────────────────────────── */
 .mode-selector {
   display: flex;
@@ -255,6 +255,10 @@ header h1 {
   flex-shrink: 0;
 }
 
+.pane-header-ai:not(:has(.cache-badge:not(.hidden))) {
+  display: none;
+}
+
 .pane-title {
   font-size: .8rem;
   font-weight: 600;
@@ -273,19 +277,10 @@ header h1 {
 }
 
 /* ───────────────────────────────────────────────
-   Pane actions group
-──────────────────────────────────────────────── */
-.pane-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-/* ───────────────────────────────────────────────
-   Clear button
+   Clear button (in header)
 ──────────────────────────────────────────────── */
 .btn-clear {
-  padding: 7px 14px;
+  padding: 5px 12px;
   background: none;
   color: var(--text-muted);
   border: 1px solid var(--border);
@@ -294,31 +289,13 @@ header h1 {
   font-weight: 500;
   cursor: pointer;
   transition: border-color .15s, color .15s;
+  white-space: nowrap;
 }
 
 .btn-clear:hover {
   border-color: #dc2626;
   color: #dc2626;
 }
-
-/* ───────────────────────────────────────────────
-   Clarify button
-──────────────────────────────────────────────── */
-.btn-clarify {
-  padding: 7px 16px;
-  background: var(--accent);
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-size: .875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background .15s, transform .1s;
-}
-
-.btn-clarify:hover { background: var(--accent-dark); }
-.btn-clarify:active { transform: scale(.97); }
-.btn-clarify:disabled { opacity: .5; cursor: not-allowed; transform: none; }
 
 /* ───────────────────────────────────────────────
    Textarea
@@ -445,11 +422,6 @@ textarea::placeholder { color: var(--text-muted); }
   /* Loading overlay in mobile: center on active pane */
   .loading {
     left: 0;
-  }
-
-  .pane-text .btn-clarify {
-    font-size: .8rem;
-    padding: 6px 12px;
   }
 }
 

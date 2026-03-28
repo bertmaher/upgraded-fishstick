@@ -63,8 +63,8 @@ async function refreshAIPane() {
     }
   }
 
-  const modeLabel = currentMode === "condensed" ? "condense" : "simplify";
-  aiContent.innerHTML = `<div class="placeholder"><p>Paste some text on the left and click <strong>Process with AI</strong> to ${modeLabel} it.</p></div>`;
+  const modeLabel = currentMode === "condensed" ? "get a Reader's Digest version" : "get a CliffsNotes version";
+  aiContent.innerHTML = `<div class="placeholder"><p>Paste some text on the left and click <strong>Process with AI</strong> to ${modeLabel}.</p></div>`;
 }
 
 /* ── Tab / pane switching (mobile) ─────────────── */
@@ -194,7 +194,7 @@ function setLoading(on) {
   clarifyBtn.disabled = on;
   loading.classList.toggle("hidden", !on);
   cacheBadge.classList.add("hidden");
-  loadingText.textContent = currentMode === "condensed" ? "Condensing…" : "Simplifying…";
+  loadingText.textContent = currentMode === "condensed" ? "Digesting…" : "Summarizing…";
 }
 
 function renderAI(text, cached) {

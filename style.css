@@ -492,16 +492,17 @@ textarea::placeholder { color: var(--text-muted); }
     row-gap: 8px;
   }
 
-  .tab-bar {
+  .tab-bar { display: none; }
+
+  .divider { display: none; }
+
+  .mode-selector {
     display: flex;
     order: -1;
     width: 100%;
   }
 
-  .tab { flex: 1; text-align: center; }
-
-  .divider { display: none; }
-  .mode-selector { display: none; }
+  .mode-btn { flex: 1; text-align: center; }
 
   .app {
     position: relative;

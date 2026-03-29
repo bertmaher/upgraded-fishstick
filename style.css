@@ -277,6 +277,81 @@ header h1 {
 }
 
 /* ───────────────────────────────────────────────
+   Samples dropdown
+──────────────────────────────────────────────── */
+.samples-container {
+  position: relative;
+}
+
+.btn-samples {
+  padding: 5px 12px;
+  background: none;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: .875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color .15s, color .15s;
+  white-space: nowrap;
+}
+
+.btn-samples:hover,
+.btn-samples.open {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.samples-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 100;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 24px rgba(0,0,0,.12);
+  min-width: 280px;
+  max-height: 420px;
+  overflow-y: auto;
+  padding: 8px 0;
+}
+
+.samples-group-label {
+  padding: 8px 16px 4px;
+  font-size: .7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--text-muted);
+}
+
+.samples-item {
+  display: block;
+  width: 100%;
+  padding: 8px 16px;
+  text-align: left;
+  background: none;
+  border: none;
+  font-size: .875rem;
+  color: var(--text);
+  cursor: pointer;
+  transition: background .12s;
+  line-height: 1.4;
+}
+
+.samples-item:hover {
+  background: var(--bg);
+  color: var(--accent);
+}
+
+.samples-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 6px 0;
+}
+
+/* ───────────────────────────────────────────────
    Clear button (in header)
 ──────────────────────────────────────────────── */
 .btn-clear {

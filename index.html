@@ -10,6 +10,10 @@
   <header>
     <h1>AI Text Reader</h1>
     <div class="header-right">
+      <div class="samples-container" id="samplesContainer">
+        <button class="btn-samples" id="samplesBtn" onclick="toggleSamples()">Samples ▾</button>
+        <div class="samples-menu hidden" id="samplesMenu"></div>
+      </div>
       <button class="btn-clear" id="clearBtn" onclick="clearText()">Clear</button>
       <div class="mode-selector" id="modeSelector">
         <button class="mode-btn active" id="modeCondensed" onclick="setMode('condensed')">Reader's Digest</button>
